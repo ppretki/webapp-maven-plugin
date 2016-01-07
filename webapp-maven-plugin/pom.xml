@@ -22,5 +22,16 @@
 		<artifactId>commons-codec</artifactId>
 		<version>1.10</version>
 	</dependency>
-</dependencies>
+	<dependency>
+		<groupId>pl.com.itsense.maven</groupId>
+		<artifactId>webapp-maven-api</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</dependency>
+	<dependency>
+		<groupId>org.apache.maven</groupId>
+		<artifactId>maven-core</artifactId>
+		<version>3.3.9</version>
+	</dependency>
+	
+ </dependencies>
 </project>
