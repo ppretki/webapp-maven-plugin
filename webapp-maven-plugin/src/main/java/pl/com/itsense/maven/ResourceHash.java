@@ -18,6 +18,8 @@ import java.util.List;
 import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -138,13 +140,22 @@ public class ResourceHash extends AbstractMojo
                                     getLog().info("imageFile " + imageFile.getPath());
                                     try
                                     {
+                                        final String ext = FilenameUtils.getExtension(imageFile.getName());
+                                        final String hash = DigestUtils.md5Hex(new FileInputStream(imageFile));
                                         final BufferedImage bufferedImage = ImageIO.read(imageFile);
                                         final ImageData imageData = new ImageData();
                                         imageData.setHeight(bufferedImage.getHeight());
                                         imageData.setWidth(bufferedImage.getWidth());
                                         imageData.setName(field.getName());
                                         imageData.setPath(image.path());
-                                        imageData.setHashFile(DigestUtils.md5Hex(new FileInputStream(imageFile)));
+                                        if (StringUtils.isNotBlank(ext))
+                                        {
+                                            imageData.setHashFile(hash + "." + ext);
+                                        }
+                                        else
+                                        {
+                                            imageData.setHashFile( hash);
+                                        }
                                         images.add(imageData);
                                         Files.copy(imageFile.toPath(), new File(resourcesDirectory, imageData.getHashFile()).toPath());
                                         bufferedImage.flush();

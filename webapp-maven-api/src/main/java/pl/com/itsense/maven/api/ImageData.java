@@ -1,4 +1,7 @@
 package pl.com.itsense.maven.api;
+
+import org.apache.commons.lang3.builder.ToStringBuilder;
+
 /**
  * 
  * @author ppretki
@@ -89,5 +92,9 @@ public class ImageData
         this.hashFile = hashFile;
     }
     
-    
+    @Override
+    public String toString()
+    {
+        return new ToStringBuilder(this).append("width x height", width + "x" + height).append("name", name).append("hashFile", hashFile).toString();
+    }
 }
