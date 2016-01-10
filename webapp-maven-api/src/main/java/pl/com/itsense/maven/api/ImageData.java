@@ -21,7 +21,26 @@ public class ImageData
     private String path;
     /** */
     private String cssClass;
+    /** */
+    private String className;
     
+    /**
+     * 
+     * @return
+     */
+    public String getClassName()
+    {
+        return className;
+    }
+    
+    /**
+     * 
+     * @param className
+     */
+    public void setClassName(final String className)
+    {
+        this.className = className;
+    }
     /**
      * 
      * @return

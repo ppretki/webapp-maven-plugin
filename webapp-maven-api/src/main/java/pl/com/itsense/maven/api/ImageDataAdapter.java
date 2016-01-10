@@ -2,6 +2,8 @@ package pl.com.itsense.maven.api;
 
 import java.lang.reflect.Type;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
@@ -25,10 +27,11 @@ public class ImageDataAdapter implements JsonSerializer<ImageData>, JsonDeserial
         final JsonObject result = new JsonObject();
         result.add("width", new JsonPrimitive(imageData.getWidth()));
         result.add("height", new JsonPrimitive(imageData.getHeight()));
-        result.add("name", new JsonPrimitive(imageData.getName()));
-        result.add("path", new JsonPrimitive(imageData.getPath()));
-        result.add("hashfile", new JsonPrimitive(imageData.getHashFile()));
-        result.add("cssClass", new JsonPrimitive(imageData.getCssClass()));
+        result.add("name", new JsonPrimitive(StringUtils.defaultString(imageData.getName())));
+        result.add("path", new JsonPrimitive(StringUtils.defaultString(imageData.getPath())));
+        result.add("hashfile", new JsonPrimitive(StringUtils.defaultString(imageData.getHashFile())));
+        result.add("cssClass", new JsonPrimitive(StringUtils.defaultString(imageData.getCssClass())));
+        result.add("className", new JsonPrimitive(StringUtils.defaultString(imageData.getClassName())));
         return result;
     }
     /**
@@ -45,6 +48,7 @@ public class ImageDataAdapter implements JsonSerializer<ImageData>, JsonDeserial
             imageData.setPath(((JsonObject) json).get("path").getAsString());
             imageData.setHashFile(((JsonObject) json).get("hashfile").getAsString());
             imageData.setCssClass(((JsonObject) json).get("cssClass").getAsString());
+            imageData.setClassName(((JsonObject) json).get("className").getAsString());
             return imageData;
         }
         return null;

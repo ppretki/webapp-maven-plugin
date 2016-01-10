@@ -4,12 +4,16 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,6 +21,7 @@ import javax.imageio.ImageIO;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.AnnotationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -27,6 +32,8 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import pl.com.itsense.maven.api.CssSprite;
+import pl.com.itsense.maven.api.CssSpriteData;
 import pl.com.itsense.maven.api.GSonConverter;
 import pl.com.itsense.maven.api.Image;
 import pl.com.itsense.maven.api.ImageData;
@@ -36,8 +43,8 @@ import pl.com.itsense.maven.api.StylesheetData;
 @Mojo(name = "resourcehash", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
 public class ResourceHash extends AbstractMojo
 {
-    @Parameter(property = "resources", required = true)
-    private List resources;
+    @Parameter(required = true)
+    private List images;
     
     @Parameter(defaultValue = "${basedir}/src/main/webapp", required = false)
     private File warSourceDirectory;
@@ -110,20 +117,16 @@ public class ResourceHash extends AbstractMojo
         }
     }
     
-    /**
-     * 
-     */
-    public void execute() throws MojoExecutionException
+    private List<ImageData> imagesProcessing(final ClassLoader loader)
     {
-        final ClassLoader loader = getCompileClassLoader();
-        getLog().info("ResourceHash: start executing ...");
-        if (resources != null)
+        final ArrayList<ImageData> imageDataList = new ArrayList<ImageData>();
+        if (images != null)
         {
-            if (resources.size() > 0)
+            if (images.size() > 0)
             {
-                final ArrayList<ImageData> images = new ArrayList<ImageData>();
                 final ArrayList<StylesheetData> stylesheets = new ArrayList<StylesheetData>();
-                for (final Object obj : resources)
+                final ArrayList<CssSpriteData> sprites = new ArrayList<CssSpriteData>();
+                for (final Object obj : images)
                 {
                     final StringBuilder cssClasses = new StringBuilder();
                     if (obj instanceof String)
@@ -132,6 +135,16 @@ public class ResourceHash extends AbstractMojo
                         try
                         {
                             final Class clazz = Class.forName(className, true, loader);
+                            final Annotation annotation = clazz.getAnnotation(CssSprite.class);
+                            CssSpriteData spriteData = null;
+                            if (annotation instanceof CssSprite)
+                            {
+                                final CssSprite sprite = (CssSprite) annotation;
+                                spriteData = new CssSpriteData();
+                                spriteData.setClassName(className);
+                                getLog().info("Sprite Definition Found: " + spriteData + " <=> " + spriteData);
+                            }
+                            final ArrayList<ImageData> spriteImages = new ArrayList<ImageData>();
                             for (final Field field : clazz.getDeclaredFields())
                             {
                                 final Image image = field.getAnnotation(Image.class);
@@ -149,7 +162,7 @@ public class ResourceHash extends AbstractMojo
                                         imageData.setWidth(bufferedImage.getWidth());
                                         imageData.setName(field.getName());
                                         imageData.setPath(image.path());
-                                        
+                                        imageData.setClassName(clazz.getName());
                                         if (StringUtils.isNotBlank(ext))
                                         {
                                             imageData.setHashFile(hash + "." + ext);
@@ -158,8 +171,8 @@ public class ResourceHash extends AbstractMojo
                                         {
                                             imageData.setHashFile( hash);
                                         }
-                                        images.add(imageData);
-                                        Files.copy(imageFile.toPath(), new File(resourcesDirectory, imageData.getHashFile()).toPath());
+                                        imageDataList.add(imageData);
+                                        Files.copy(imageFile.toPath(), new File(resourcesDirectory, imageData.getHashFile()).toPath(), StandardCopyOption.REPLACE_EXISTING);
                                         bufferedImage.flush();
                                         // CSS PROCESSING
                                         if (image.css())
@@ -170,6 +183,11 @@ public class ResourceHash extends AbstractMojo
                                         {
                                             imageData.setCssClass(StringUtils.EMPTY);
                                         }
+                                        
+                                        if (image.sprite() && spriteData != null)
+                                        {
+                                            spriteImages.add(imageData);
+                                        }
                                         getLog().info(imageFile.getPath() + " <=> " + imageData);
                                     }
                                     catch (IOException e)
@@ -177,6 +195,12 @@ public class ResourceHash extends AbstractMojo
                                         e.printStackTrace();
                                     }
                                 }
+                            }
+                            if (spriteData != null &&  spriteImages.size() > 0)
+                            {
+                                spriteData.setImages(spriteImages.toArray(new ImageData[0]));
+                                sprites.add(spriteData);
+                                getLog().info("Sprite Added: " + spriteData);
                             }
                             if (cssClasses.length() > 0)
                             {
@@ -205,12 +229,14 @@ public class ResourceHash extends AbstractMojo
                 }
                 
                 
-                final String jsonImages = GSonConverter.getGson().toJson(images);
-                final String jsonStylesheet = GSonConverter.getGson().toJson(stylesheets);
+                final String jsonImages = imageDataList.size() > 0 ? GSonConverter.getGson().toJson(imageDataList) : StringUtils.EMPTY;
+                final String jsonStylesheet = stylesheets.size() > 0 ? GSonConverter.getGson().toJson(stylesheets): StringUtils.EMPTY;
+                final String jsonSprites = sprites.size() > 0 ? GSonConverter.getGson().toJson(sprites): StringUtils.EMPTY;
                 try
                 {
-                    Files.write(new File(targetDirectory, "images.json").toPath(), jsonImages.getBytes());
-                    Files.write(new File(targetDirectory, "stylesheets.json").toPath(), jsonStylesheet.getBytes());
+                    if (StringUtils.isNotBlank(jsonImages)) Files.write(new File(targetDirectory, "images.json").toPath(), jsonImages.getBytes());
+                    if (StringUtils.isNotBlank(jsonStylesheet)) Files.write(new File(targetDirectory, "stylesheets.json").toPath(), jsonStylesheet.getBytes());
+                    if (StringUtils.isNotBlank(jsonSprites)) Files.write(new File(targetDirectory, "sprites.json").toPath(), jsonSprites.getBytes());
                 }
                 catch (IOException e)
                 {
@@ -219,13 +245,23 @@ public class ResourceHash extends AbstractMojo
             }
             else
             {
-                getLog().error("No resources have been specified");
+                getLog().error("Images have not been specified");
             }
         }
         else
         {
-            getLog().error("Resources have not been specified");
-        }
+            getLog().error("images have not been specified");
+        } 
+        return imageDataList;
+    }
+    /**
+     * 
+     */
+    public void execute() throws MojoExecutionException
+    {
+        final ClassLoader loader = getCompileClassLoader();
+        getLog().info("ResourceHash: start executing ...");
+        imagesProcessing(loader);
         getLog().info("ResourceHash: stop executing");
     }
     /**

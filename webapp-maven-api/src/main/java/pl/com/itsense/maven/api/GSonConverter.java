@@ -12,7 +12,11 @@ import com.google.gson.GsonBuilder;
 public abstract class GSonConverter
 {
     /** */
-    private final static Gson gson = (new GsonBuilder()).registerTypeAdapter(ImageData.class, new ImageDataAdapter()).registerTypeAdapter(StylesheetData.class, new StylesheetDataAdapter()).setPrettyPrinting().create();
+    private final static Gson gson = (new GsonBuilder())
+            .registerTypeAdapter(ImageData.class, new ImageDataAdapter())
+            .registerTypeAdapter(StylesheetData.class, new StylesheetDataAdapter())
+            .registerTypeAdapter(CssSpriteData.class, new CssSpriteDataAdapter())
+            .setPrettyPrinting().create();
 
     /**
      * 

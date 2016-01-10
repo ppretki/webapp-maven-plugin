@@ -1,6 +1,9 @@
 package pl.com.itsense.maven.api;
 
 import java.lang.reflect.Type;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
@@ -15,30 +18,31 @@ import com.google.gson.JsonSerializer;
  * @author ppretki
  *
  */
-public class CssSpriteDataAdapter implements JsonSerializer<ImageData>, JsonDeserializer<ImageData>
+public class CssSpriteDataAdapter implements JsonSerializer<CssSpriteData>, JsonDeserializer<CssSpriteData>
 {
     /**
 	 * 
 	 */
-    public JsonElement serialize(final ImageData imageData, final Type typeOfSrc, final JsonSerializationContext context)
+    public JsonElement serialize(final CssSpriteData spriteData, final Type typeOfSrc, final JsonSerializationContext context)
     {
         final JsonObject result = new JsonObject();
-        result.add("width", new JsonPrimitive(imageData.getWidth()));
-        result.add("height", new JsonPrimitive(imageData.getHeight()));
-        result.add("name", new JsonPrimitive(imageData.getName()));
-        result.add("path", new JsonPrimitive(imageData.getPath()));
-        result.add("hashfile", new JsonPrimitive(imageData.getHashFile()));
-        result.add("cssClass", new JsonPrimitive(imageData.getCssClass()));
+        result.add("images", context.serialize(spriteData.getImages()));
+        result.add("width", new JsonPrimitive(spriteData.getWidth()));
+        result.add("height", new JsonPrimitive(spriteData.getHeight()));
+        result.add("name", new JsonPrimitive(StringUtils.defaultString(spriteData.getName())));
+        result.add("path", new JsonPrimitive(StringUtils.defaultString(spriteData.getPath())));
+        result.add("hashfile", new JsonPrimitive(StringUtils.defaultString(spriteData.getHashFile())));
+        result.add("cssClass", new JsonPrimitive(StringUtils.defaultString(spriteData.getCssClass())));
         return result;
     }
     /**
      * 
      */
-    public ImageData deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException
+    public CssSpriteData deserialize(final JsonElement json, final Type typeOfT, final JsonDeserializationContext context) throws JsonParseException
     {
         if (json instanceof JsonObject)
         {
-            final ImageData imageData = new ImageData();
+            final CssSpriteData imageData = new CssSpriteData();
             imageData.setWidth(((JsonObject) json).get("width").getAsInt());
             imageData.setHeight(((JsonObject) json).get("height").getAsInt());
             imageData.setName(((JsonObject) json).get("name").getAsString());

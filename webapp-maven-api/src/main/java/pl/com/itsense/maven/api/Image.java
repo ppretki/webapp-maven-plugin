@@ -19,5 +19,7 @@ public @interface Image
     
     /** */
     boolean css() default false;
-    
+
+    /** */
+    boolean sprite() default true;
 }
