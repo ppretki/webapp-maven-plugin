@@ -15,7 +15,7 @@ import com.google.gson.JsonSerializer;
  * @author ppretki
  *
  */
-public class ImageDataAdapter implements JsonSerializer<ImageData>, JsonDeserializer<ImageData>
+public class CssSpriteDataAdapter implements JsonSerializer<ImageData>, JsonDeserializer<ImageData>
 {
     /**
 	 * 

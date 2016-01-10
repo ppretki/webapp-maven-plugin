@@ -8,10 +8,8 @@ import java.lang.reflect.Field;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.CopyOption;
 import java.nio.file.Files;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +30,7 @@ import org.apache.maven.project.MavenProject;
 import pl.com.itsense.maven.api.GSonConverter;
 import pl.com.itsense.maven.api.Image;
 import pl.com.itsense.maven.api.ImageData;
+import pl.com.itsense.maven.api.StylesheetData;
 
 
 @Mojo(name = "resourcehash", defaultPhase = LifecyclePhase.PROCESS_CLASSES)
@@ -123,8 +122,10 @@ public class ResourceHash extends AbstractMojo
             if (resources.size() > 0)
             {
                 final ArrayList<ImageData> images = new ArrayList<ImageData>();
+                final ArrayList<StylesheetData> stylesheets = new ArrayList<StylesheetData>();
                 for (final Object obj : resources)
                 {
+                    final StringBuilder cssClasses = new StringBuilder();
                     if (obj instanceof String)
                     {
                         final String className = (String) obj;
@@ -148,6 +149,7 @@ public class ResourceHash extends AbstractMojo
                                         imageData.setWidth(bufferedImage.getWidth());
                                         imageData.setName(field.getName());
                                         imageData.setPath(image.path());
+                                        
                                         if (StringUtils.isNotBlank(ext))
                                         {
                                             imageData.setHashFile(hash + "." + ext);
@@ -159,12 +161,40 @@ public class ResourceHash extends AbstractMojo
                                         images.add(imageData);
                                         Files.copy(imageFile.toPath(), new File(resourcesDirectory, imageData.getHashFile()).toPath());
                                         bufferedImage.flush();
+                                        // CSS PROCESSING
+                                        if (image.css())
+                                        {
+                                            imageData.setCssClass(appendStylesheetClass(cssClasses, clazz, imageData));
+                                        }
+                                        else
+                                        {
+                                            imageData.setCssClass(StringUtils.EMPTY);
+                                        }
+                                        getLog().info(imageFile.getPath() + " <=> " + imageData);
                                     }
                                     catch (IOException e)
                                     {
                                         e.printStackTrace();
                                     }
                                 }
+                            }
+                            if (cssClasses.length() > 0)
+                            {
+                                final String hash = DigestUtils.md5Hex(cssClasses.toString());
+                                try
+                                {
+                                    final Path path = new File(resourcesDirectory, hash + ".css").toPath();
+                                    Files.write(path, cssClasses.toString().getBytes());
+                                    
+                                    final StylesheetData stylesheetData = new StylesheetData();
+                                    stylesheetData.setClassName(className);
+                                    stylesheetData.setHashFile(hash);
+                                    stylesheets.add(stylesheetData);
+                                }
+                                catch (IOException e)
+                                {
+                                    e.printStackTrace();
+                                }  
                             }
                         }
                         catch (ClassNotFoundException e)
@@ -173,10 +203,14 @@ public class ResourceHash extends AbstractMojo
                         }
                     }
                 }
+                
+                
                 final String jsonImages = GSonConverter.getGson().toJson(images);
+                final String jsonStylesheet = GSonConverter.getGson().toJson(stylesheets);
                 try
                 {
                     Files.write(new File(targetDirectory, "images.json").toPath(), jsonImages.getBytes());
+                    Files.write(new File(targetDirectory, "stylesheets.json").toPath(), jsonStylesheet.getBytes());
                 }
                 catch (IOException e)
                 {
@@ -193,5 +227,20 @@ public class ResourceHash extends AbstractMojo
             getLog().error("Resources have not been specified");
         }
         getLog().info("ResourceHash: stop executing");
+    }
+    /**
+     * 
+     * @return
+     */
+    private static String appendStylesheetClass(final StringBuilder buffer, final Class clazz, final ImageData imageData)
+    {
+        final String name = clazz.getName().replaceAll("\\.", "-") + "-" + imageData.getName();
+        buffer.append(".").append(name).append("{\n");
+        buffer.append("background-image: url(\"").append(imageData.getHashFile()).append("\");\n");
+        buffer.append("background-repeat: no-repeat;\n");
+        buffer.append("width:").append(imageData.getWidth()).append("px;\n");
+        buffer.append("height:").append(imageData.getHeight()).append("px;\n");
+        buffer.append("}\n");
+        return name;
     }
 }

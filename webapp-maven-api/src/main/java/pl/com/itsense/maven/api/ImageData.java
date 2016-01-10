@@ -19,6 +19,26 @@ public class ImageData
     private String hashFile;
     /** */
     private String path;
+    /** */
+    private String cssClass;
+    
+    /**
+     * 
+     * @return
+     */
+    public String getCssClass()
+    {
+        return cssClass;
+    }
+    
+    /**
+     * 
+     * @param cssClass
+     */
+    public void setCssClass(final String cssClass)
+    {
+        this.cssClass = cssClass;
+    }
     /**
      * 
      * @return
@@ -95,6 +115,6 @@ public class ImageData
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this).append("width x height", width + "x" + height).append("name", name).append("hashFile", hashFile).toString();
+        return new ToStringBuilder(this).append("width x height", width + "x" + height).append("css", cssClass).append("name", name).append("hashFile", hashFile).toString();
     }
 }
