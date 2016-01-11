@@ -27,6 +27,29 @@ public class ImageData
     private String cssClass;
     /** */
     private String className;
+    /**
+     * 
+     */
+    public ImageData()
+    {
+    }
+
+    /**
+     * 
+     * @param image
+     */
+    public ImageData(final ImageData image)
+    {
+        this.xpos = image.xpos;
+        this.ypos = image.ypos;
+        this.width = image.width;
+        this.height = image.height;
+        this.name = image.name;
+        this.hashFile = image.hashFile;
+        this.path = image.path;
+        this.cssClass = image.cssClass;
+        this.className = image.className;
+    }
     
     /**
      * 
@@ -171,6 +194,6 @@ public class ImageData
     @Override
     public String toString()
     {
-        return new ToStringBuilder(this).append("width x height", width + "x" + height).append("css", cssClass).append("name", name).append("hashFile", hashFile).toString();
+        return new ToStringBuilder(this).append("[xpos, ypox, width, height]", "[" + xpos + "," + ypos + "," + width + "," + height + "]").append("css", cssClass).append("name", name).append("path", path).append("hashFile", hashFile).toString();
     }
 }

@@ -11,7 +11,7 @@ import pl.com.itsense.maven.api.ImageData;
  * @author ppretki
  *
  */
-interface LayoutManager
+public interface LayoutManager
 {
-    Map<ImageData, Rectangle> eval(final Map<ImageData, Rectangle> images);
+    Map<ImageData, Rectangle> evalPositions(final ImageData[] images);
 }

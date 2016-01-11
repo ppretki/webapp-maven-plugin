@@ -1,28 +1,30 @@
 package pl.com.itsense.csssprites.impl;
 
 import java.awt.Rectangle;
+import java.util.HashMap;
 import java.util.Map;
 
 import pl.com.itsense.csssprites.LayoutManager;
-import pl.com.itsense.webmodel.Img;
+import pl.com.itsense.maven.api.ImageData;
 
 /**
  * 
  * @author ppretki
  *
  */
-public class SimpleVerticalLayoutManager extends LayoutManager
+public class SimpleVerticalLayoutManager implements LayoutManager
 {
     /**
      * 
      */
     @Override
-    public Map<Img, Rectangle> eval(final Map<Img, Rectangle> imgs)
+    public Map<ImageData, Rectangle> evalPositions(final ImageData[] images)
     {
+        final HashMap<ImageData, Rectangle> result = new HashMap<ImageData, Rectangle>();
         Rectangle prevRect = null;
-        for (final Img img : imgs.keySet())
+        for (final ImageData image : images)
         {
-            final Rectangle rect = imgs.get(img);
+            final Rectangle rect = new Rectangle(0, 0, image.getWidth(), image.getHeight());
             if (prevRect == null)
             {
                 rect.x = 0;
@@ -33,8 +35,9 @@ public class SimpleVerticalLayoutManager extends LayoutManager
                 rect.y = prevRect.y + prevRect.height;
                 rect.x = 0;
             }
+            result.put(image, rect);
             prevRect = rect;
         }
-        return imgs;
+        return result;
     }
 }
