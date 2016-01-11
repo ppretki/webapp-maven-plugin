@@ -32,6 +32,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import pl.com.itsense.csssprites.WebAppUtils;
 import pl.com.itsense.maven.api.CssSprite;
 import pl.com.itsense.maven.api.CssSpriteData;
 import pl.com.itsense.maven.api.GSonConverter;
@@ -156,10 +157,7 @@ public class ResourceHash extends AbstractMojo
                                     {
                                         final String ext = FilenameUtils.getExtension(imageFile.getName());
                                         final String hash = DigestUtils.md5Hex(new FileInputStream(imageFile));
-                                        final BufferedImage bufferedImage = ImageIO.read(imageFile);
-                                        final ImageData imageData = new ImageData();
-                                        imageData.setHeight(bufferedImage.getHeight());
-                                        imageData.setWidth(bufferedImage.getWidth());
+                                        final ImageData imageData = WebAppUtils.getImageData(imageFile);
                                         imageData.setName(field.getName());
                                         imageData.setPath(image.path());
                                         imageData.setClassName(clazz.getName());
@@ -173,7 +171,6 @@ public class ResourceHash extends AbstractMojo
                                         }
                                         imageDataList.add(imageData);
                                         Files.copy(imageFile.toPath(), new File(resourcesDirectory, imageData.getHashFile()).toPath(), StandardCopyOption.REPLACE_EXISTING);
-                                        bufferedImage.flush();
                                         // CSS PROCESSING
                                         if (image.css())
                                         {

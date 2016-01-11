@@ -25,6 +25,8 @@ public class ImageDataAdapter implements JsonSerializer<ImageData>, JsonDeserial
     public JsonElement serialize(final ImageData imageData, final Type typeOfSrc, final JsonSerializationContext context)
     {
         final JsonObject result = new JsonObject();
+        result.add("xpos", new JsonPrimitive(imageData.getXpos()));
+        result.add("ypos", new JsonPrimitive(imageData.getYpos()));
         result.add("width", new JsonPrimitive(imageData.getWidth()));
         result.add("height", new JsonPrimitive(imageData.getHeight()));
         result.add("name", new JsonPrimitive(StringUtils.defaultString(imageData.getName())));
@@ -42,6 +44,8 @@ public class ImageDataAdapter implements JsonSerializer<ImageData>, JsonDeserial
         if (json instanceof JsonObject)
         {
             final ImageData imageData = new ImageData();
+            imageData.setXpos(((JsonObject) json).get("xpos").getAsInt());
+            imageData.setYpos(((JsonObject) json).get("ypos").getAsInt());
             imageData.setWidth(((JsonObject) json).get("width").getAsInt());
             imageData.setHeight(((JsonObject) json).get("height").getAsInt());
             imageData.setName(((JsonObject) json).get("name").getAsString());

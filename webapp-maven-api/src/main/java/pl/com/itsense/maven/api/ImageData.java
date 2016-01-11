@@ -10,6 +10,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class ImageData
 {
     /** */
+    private int xpos;
+    /** */
+    private int ypos;
+    /** */
     private int height;
     /** */
     private int width;
@@ -23,6 +27,39 @@ public class ImageData
     private String cssClass;
     /** */
     private String className;
+    
+    /**
+     * 
+     * @param xpos
+     */
+    public void setXpos(final int xpos)
+    {
+        this.xpos = xpos;
+    }
+    /**
+     * 
+     * @param ypos
+     */
+    public void setYpos(final int ypos)
+    {
+        this.ypos = ypos;
+    }
+    /**
+     * 
+     * @return
+     */
+    public int getXpos()
+    {
+        return xpos;
+    }
+    /**
+     * 
+     * @return
+     */
+    public int getYpos()
+    {
+        return ypos;
+    }
     
     /**
      * 
