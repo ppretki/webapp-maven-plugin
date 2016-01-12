@@ -42,7 +42,6 @@ public class CssSpriteImageProcessor
         createImage(spriteData, output, BufferedImage.TYPE_INT_RGB, Color.WHITE, "png");
         return spriteData;
     }
-
     /**
      * 
      * @param sprite

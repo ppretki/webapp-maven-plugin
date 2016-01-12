@@ -27,6 +27,8 @@ public class ImageData
     private String cssClass;
     /** */
     private String className;
+    /** */
+    private String absolutePath;
     /**
      * 
      */

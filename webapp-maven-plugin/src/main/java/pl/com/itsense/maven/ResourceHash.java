@@ -188,7 +188,9 @@ public class ResourceHash extends AbstractMojo
                                         
                                         if (image.sprite() && spriteImages != null)
                                         {
-                                            spriteImages.add(imageData);
+                                            final ImageData spriteImageData = new ImageData(imageData);
+                                            spriteImageData.setPath(imageFile.getPath());
+                                            spriteImages.add(spriteImageData);
                                         }
                                         getLog().info(imageFile.getPath() + " <=> " + imageData);
                                     }
