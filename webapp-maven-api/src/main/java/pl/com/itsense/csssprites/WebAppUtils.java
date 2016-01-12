@@ -174,7 +174,7 @@ public abstract class WebAppUtils
      */
     public static String appendStylesheetClass(final StringBuilder buffer, final CssSpriteData spriteData, final ImageData imageData, final String baseURL)
     {
-        final String name = spriteData.getName() + "-" + imageData.getName();
+        final String name = spriteData.getName() + "_" + imageData.getName();
         buffer.append(".").append(name).append("{\n");
         buffer.append("background-image: url(\"").append(baseURL).append(spriteData.getHashFile()).append("\");\n");
         buffer.append("background-repeat: no-repeat;\n");

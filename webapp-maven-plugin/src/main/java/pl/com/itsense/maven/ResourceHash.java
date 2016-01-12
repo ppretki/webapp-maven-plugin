@@ -212,7 +212,7 @@ public class ResourceHash extends AbstractMojo
                                 {
 
                                 	final String hash = DigestUtils.md5Hex(spriteStylesheet.toString());
-                                    spriteData.setClassName(hash + ".css");
+                                	spriteData.setHashFile(hash + ".css");
                                     try
                                     {
                                     	final Path path = new File(resourcesDirectory, hash + ".css").toPath();
