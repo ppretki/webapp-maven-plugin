@@ -178,7 +178,7 @@ public abstract class WebAppUtils
         buffer.append(".").append(name).append("{\n");
         buffer.append("background-image: url(\"").append(baseURL).append(spriteData.getHashFile()).append("\");\n");
         buffer.append("background-repeat: no-repeat;\n");
-        buffer.append("background-position:").append(imageData.getXpos()).append("px ").append(imageData.getYpos()).append("px;\n");
+        buffer.append("background-position:").append(-1 * imageData.getXpos()).append("px ").append(-1 * imageData.getYpos()).append("px;\n");
         buffer.append("width:").append(imageData.getWidth()).append("px;\n");
         buffer.append("height:").append(imageData.getHeight()).append("px;\n");
         buffer.append("}\n");
