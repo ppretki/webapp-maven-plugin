@@ -27,12 +27,15 @@ public class CssSpriteDataAdapter implements JsonSerializer<CssSpriteData>, Json
     {
         final JsonObject result = new JsonObject();
         result.add("images", context.serialize(spriteData.getImages()));
+        result.add("xpos", new JsonPrimitive(spriteData.getXpos()));
+        result.add("ypos", new JsonPrimitive(spriteData.getYpos()));
         result.add("width", new JsonPrimitive(spriteData.getWidth()));
         result.add("height", new JsonPrimitive(spriteData.getHeight()));
         result.add("name", new JsonPrimitive(StringUtils.defaultString(spriteData.getName())));
         result.add("path", new JsonPrimitive(StringUtils.defaultString(spriteData.getPath())));
         result.add("hashfile", new JsonPrimitive(StringUtils.defaultString(spriteData.getHashFile())));
         result.add("cssClass", new JsonPrimitive(StringUtils.defaultString(spriteData.getCssClass())));
+        result.add("className", new JsonPrimitive(StringUtils.defaultString(spriteData.getClassName())));
         return result;
     }
     /**
@@ -43,12 +46,15 @@ public class CssSpriteDataAdapter implements JsonSerializer<CssSpriteData>, Json
         if (json instanceof JsonObject)
         {
             final CssSpriteData imageData = new CssSpriteData();
+            imageData.setXpos(((JsonObject) json).get("xpos").getAsInt());
+            imageData.setYpos(((JsonObject) json).get("ypos").getAsInt());
             imageData.setWidth(((JsonObject) json).get("width").getAsInt());
             imageData.setHeight(((JsonObject) json).get("height").getAsInt());
             imageData.setName(((JsonObject) json).get("name").getAsString());
             imageData.setPath(((JsonObject) json).get("path").getAsString());
             imageData.setHashFile(((JsonObject) json).get("hashfile").getAsString());
             imageData.setCssClass(((JsonObject) json).get("cssClass").getAsString());
+            imageData.setClassName(((JsonObject) json).get("className").getAsString());
             return imageData;
         }
         return null;

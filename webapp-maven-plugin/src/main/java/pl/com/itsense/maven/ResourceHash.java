@@ -1,5 +1,6 @@
 package pl.com.itsense.maven;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
@@ -32,6 +33,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.project.MavenProject;
 
+import pl.com.itsense.csssprites.CssSpriteImageProcessor;
 import pl.com.itsense.csssprites.WebAppUtils;
 import pl.com.itsense.maven.api.CssSprite;
 import pl.com.itsense.maven.api.CssSpriteData;
@@ -137,15 +139,18 @@ public class ResourceHash extends AbstractMojo
                         {
                             final Class clazz = Class.forName(className, true, loader);
                             final Annotation annotation = clazz.getAnnotation(CssSprite.class);
-                            CssSpriteData spriteData = null;
+                            final ArrayList<ImageData> spriteImages;
+                            final CssSprite sprite;
                             if (annotation instanceof CssSprite)
                             {
-                                final CssSprite sprite = (CssSprite) annotation;
-                                spriteData = new CssSpriteData();
-                                spriteData.setClassName(className);
-                                getLog().info("Sprite Definition Found: " + spriteData + " <=> " + spriteData);
+                                sprite = (CssSprite) annotation;
+                                spriteImages = new ArrayList<ImageData>();
                             }
-                            final ArrayList<ImageData> spriteImages = new ArrayList<ImageData>();
+                            else
+                            {
+                                sprite = null;
+                                spriteImages = null;
+                            }
                             for (final Field field : clazz.getDeclaredFields())
                             {
                                 final Image image = field.getAnnotation(Image.class);
@@ -181,7 +186,7 @@ public class ResourceHash extends AbstractMojo
                                             imageData.setCssClass(StringUtils.EMPTY);
                                         }
                                         
-                                        if (image.sprite() && spriteData != null)
+                                        if (image.sprite() && spriteImages != null)
                                         {
                                             spriteImages.add(imageData);
                                         }
@@ -193,10 +198,12 @@ public class ResourceHash extends AbstractMojo
                                     }
                                 }
                             }
-                            if (spriteData != null &&  spriteImages.size() > 0)
+                            if (spriteImages != null &&  spriteImages.size() > 0)
                             {
-                                spriteData.setImages(spriteImages.toArray(new ImageData[0]));
+                                final CssSpriteData spriteData = WebAppUtils.getSpriteData(spriteImages.toArray(new ImageData[0]), null);
+                                spriteData.setClassName(className);
                                 sprites.add(spriteData);
+                                CssSpriteImageProcessor.createImage(spriteData, resourcesDirectory, BufferedImage.TYPE_INT_RGB, Color.WHITE, "png");
                                 getLog().info("Sprite Added: " + spriteData);
                             }
                             if (cssClasses.length() > 0)

@@ -51,7 +51,7 @@ public class CssSpriteImageProcessor
      * @param layoutManager
      * @param format see subclasses of {@link ImageWriterSpi}
      */
-    private static void createImage(final CssSpriteData spriteData, final File output, final int type, final Color bg,final String format)
+    public static void createImage(final CssSpriteData spriteData, final File output, final int type, final Color bg,final String format)
     {
         final BufferedImage spriteImage = new BufferedImage(spriteData.getWidth(), spriteData.getHeight(), type);
         final Graphics spriteGraphics = spriteImage.getGraphics();

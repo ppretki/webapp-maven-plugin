@@ -13,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import pl.com.itsense.csssprites.impl.SimpleVerticalLayoutManager;
 import pl.com.itsense.maven.api.CssSpriteData;
 import pl.com.itsense.maven.api.ImageData;
 
@@ -25,6 +26,17 @@ public abstract class WebAppUtils
 {
     /** */
     final static Logger LOG = LoggerFactory.getLogger(WebAppUtils.class);
+    /**
+     *  
+     * @param positions
+     * @return
+     */
+    public static CssSpriteData getSpriteData(final ImageData[] images, LayoutManager layoutManager)
+    {
+        if (layoutManager == null) layoutManager = new SimpleVerticalLayoutManager();
+        final Map<ImageData, Rectangle> positions = layoutManager.evalPositions(images);
+        return getSpriteData(positions);
+    }
     
    /**
     *  
