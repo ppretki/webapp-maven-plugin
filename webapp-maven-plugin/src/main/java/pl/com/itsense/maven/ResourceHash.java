@@ -7,8 +7,6 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -16,13 +14,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-
-import javax.imageio.ImageIO;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.AnnotationUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.artifact.DependencyResolutionRequiredException;
 import org.apache.maven.plugin.AbstractMojo;
@@ -151,6 +146,8 @@ public class ResourceHash extends AbstractMojo
                                 sprite = null;
                                 spriteImages = null;
                             }
+                            final HashMap<String,String> absolutePaths = new HashMap<String,String>(); 
+                            final HashMap<String,String> invertedAbsolutePaths = new HashMap<String,String>(); 
                             for (final Field field : clazz.getDeclaredFields())
                             {
                                 final Image image = field.getAnnotation(Image.class);
@@ -189,8 +186,9 @@ public class ResourceHash extends AbstractMojo
                                         if (image.sprite() && spriteImages != null)
                                         {
                                             final ImageData spriteImageData = new ImageData(imageData);
-                                            spriteImageData.setPath(imageFile.getPath());
                                             spriteImages.add(spriteImageData);
+                                            absolutePaths.put(image.path(), imageFile.getPath());
+                                            invertedAbsolutePaths.put(imageFile.getPath(), image.path());
                                         }
                                         getLog().info(imageFile.getPath() + " <=> " + imageData);
                                     }
@@ -202,10 +200,29 @@ public class ResourceHash extends AbstractMojo
                             }
                             if (spriteImages != null &&  spriteImages.size() > 0)
                             {
+                            	for (final ImageData spriteImage : spriteImages) spriteImage.setPath(absolutePaths.get(spriteImage.getPath()));
                                 final CssSpriteData spriteData = WebAppUtils.getSpriteData(spriteImages.toArray(new ImageData[0]), null);
+                                spriteData.setName(clazz.getName().replaceAll("\\.", "-"));
                                 spriteData.setClassName(className);
                                 sprites.add(spriteData);
                                 CssSpriteImageProcessor.createImage(spriteData, resourcesDirectory, BufferedImage.TYPE_INT_RGB, Color.WHITE, "png");
+                                for (final ImageData spriteImage : spriteData.getImages()) spriteImage.setPath(invertedAbsolutePaths.get(spriteImage.getPath()));
+                                final String spriteStylesheet = WebAppUtils.getStylesheetClass(spriteData, StringUtils.EMPTY);
+                                if (StringUtils.isNoneBlank(spriteStylesheet))
+                                {
+
+                                	final String hash = DigestUtils.md5Hex(spriteStylesheet.toString());
+                                    spriteData.setClassName(hash + ".css");
+                                    try
+                                    {
+                                    	final Path path = new File(resourcesDirectory, hash + ".css").toPath();
+                                    	Files.write(path, spriteStylesheet.toString().getBytes());
+                                    }
+                                    catch (IOException e)
+                                    {
+                                        e.printStackTrace();
+                                    }  
+                                }
                                 getLog().info("Sprite Added: " + spriteData);
                             }
                             if (cssClasses.length() > 0)
@@ -215,7 +232,6 @@ public class ResourceHash extends AbstractMojo
                                 {
                                     final Path path = new File(resourcesDirectory, hash + ".css").toPath();
                                     Files.write(path, cssClasses.toString().getBytes());
-                                    
                                     final StylesheetData stylesheetData = new StylesheetData();
                                     stylesheetData.setClassName(className);
                                     stylesheetData.setHashFile(hash);

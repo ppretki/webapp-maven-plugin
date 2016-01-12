@@ -84,7 +84,7 @@ public class CssSpriteImageProcessor
         }
         try
         {
-            final File spriteFile = new File(output, spriteData.getHashFile() + "." + format);
+            final File spriteFile = new File(output, spriteData.getHashFile());
             ImageIO.write(spriteImage, format, spriteFile);
         }
         catch (IOException e)
