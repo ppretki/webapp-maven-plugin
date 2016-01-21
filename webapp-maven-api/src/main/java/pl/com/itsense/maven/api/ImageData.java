@@ -193,6 +193,23 @@ public class ImageData
         this.hashFile = hashFile;
     }
     
+    /**
+     * 
+     * @return
+     */
+    public String getAbsolutePath()
+    {
+        return absolutePath;
+    }
+    /**
+     * 
+     * @param absolutePath
+     */
+    public void setAbsolutePath(final String absolutePath)
+    {
+        this.absolutePath = absolutePath;
+    }
+    
     @Override
     public String toString()
     {

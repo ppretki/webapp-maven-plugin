@@ -1,5 +1,6 @@
 package pl.com.itsense.csssprites;
 
+import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -147,6 +148,19 @@ public abstract class WebAppUtils
      * @param spriteData
      * @return
      */
+    public static String getStylesheetClass(final CssSpriteData spriteData, final String baseURL, final ImageData... containers)
+    {
+        final StringBuilder sb = new StringBuilder();
+        appendStylesheetClass(sb, spriteData, baseURL, containers);
+        return sb.toString();
+                
+    }
+
+    /**
+     * 
+     * @param spriteData
+     * @return
+     */
     public static String getStylesheetClass(final CssSpriteData spriteData, final String baseURL)
     {
         final StringBuilder sb = new StringBuilder();
@@ -160,11 +174,11 @@ public abstract class WebAppUtils
      * @param buffer
      * @param spriteData
      */
-    public static void appendStylesheetClass(final StringBuilder buffer, final CssSpriteData spriteData, final String baseURL)
+    public static void appendStylesheetClass(final StringBuilder buffer, final CssSpriteData spriteData, final String baseURL, final ImageData... containers)
     {
        for (final ImageData image : spriteData.getImages())
        {
-           appendStylesheetClass(buffer, spriteData, image, baseURL);
+           appendStylesheetClass(buffer, spriteData, image, baseURL, containers);
        }
     }
     
@@ -172,7 +186,7 @@ public abstract class WebAppUtils
      * 
      * @return
      */
-    public static String appendStylesheetClass(final StringBuilder buffer, final CssSpriteData spriteData, final ImageData imageData, final String baseURL)
+    public static String appendStylesheetClass(final StringBuilder buffer, final CssSpriteData spriteData, final ImageData imageData, final String baseURL,  final ImageData... containers)
     {
         final String name = spriteData.getName() + "_" + imageData.getName();
         buffer.append(".").append(name).append("{\n");
@@ -182,6 +196,17 @@ public abstract class WebAppUtils
         buffer.append("width:").append(imageData.getWidth()).append("px;\n");
         buffer.append("height:").append(imageData.getHeight()).append("px;\n");
         buffer.append("}\n");
+        for (final ImageData container : containers)
+        {
+            final String containerName = spriteData.getName() + "_" + imageData.getName() + "_" + container.getName();
+            buffer.append(".").append(containerName).append("{\n");
+            buffer.append("position: relative;\n");
+            buffer.append("top:").append((container.getHeight() - imageData.getHeight())/2).append(";\n");
+            buffer.append("left:").append((container.getWidth() - imageData.getWidth())/2).append(";\n");
+            buffer.append("width:").append(container.getWidth()).append("px;\n");
+            buffer.append("height:").append(container.getHeight()).append("px;\n");
+            buffer.append("}\n");
+        }
         return name;
     }
 }
