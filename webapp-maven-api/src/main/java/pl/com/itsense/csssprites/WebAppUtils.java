@@ -201,10 +201,8 @@ public abstract class WebAppUtils
             final String containerName = spriteData.getName() + "_" + imageData.getName() + "_" + container.getName();
             buffer.append(".").append(containerName).append("{\n");
             buffer.append("position: relative;\n");
-            buffer.append("top:").append((container.getHeight() - imageData.getHeight())/2).append(";\n");
-            buffer.append("left:").append((container.getWidth() - imageData.getWidth())/2).append(";\n");
-            buffer.append("width:").append(container.getWidth()).append("px;\n");
-            buffer.append("height:").append(container.getHeight()).append("px;\n");
+            buffer.append("top:").append((container.getHeight() - imageData.getHeight())/2).append("px;\n");
+            buffer.append("left:").append((container.getWidth() - imageData.getWidth())/2).append("px;\n");
             buffer.append("}\n");
         }
         return name;
